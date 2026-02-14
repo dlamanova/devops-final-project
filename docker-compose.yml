@@ -1,0 +1,12 @@
+services:
+  plants-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: plants-api
+    ports:
+      - "4030:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    restart: unless-stopped
