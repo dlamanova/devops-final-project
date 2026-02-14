@@ -25,4 +25,24 @@ public class PlantsController : ControllerBase
     {
         return Ok(plants);
     }
+
+    /// <summary>
+    /// Get a specific plant by ID
+    /// </summary>
+    /// <param name="id">Plant ID</param>
+    /// <returns>Plant object if found</returns>
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public ActionResult<Plant> GetPlantById(int id)
+    {
+        var plant = plants.FirstOrDefault(p => p.Id == id);
+        
+        if (plant == null)
+        {
+            return NotFound(new { message = $"Plant with ID {id} not found" });
+        }
+        
+        return Ok(plant);
+    }
 }
