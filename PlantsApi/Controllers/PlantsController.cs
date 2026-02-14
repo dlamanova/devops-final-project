@@ -15,5 +15,14 @@ public class PlantsController : ControllerBase
         new Plant { Id = 3, Name = "Pothos", Species = "Epipremnum aureum", WateringFrequencyDays = 5, PlantedDate = new DateTime(2024, 3, 10) }
     };
 
-    // TODO: Endpoints will be added in next issues
+    /// <summary>
+    /// Get all plants
+    /// </summary>
+    /// <returns>List of all plants</returns>
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public ActionResult<IEnumerable<Plant>> GetAllPlants()
+    {
+        return Ok(plants);
+    }
 }
