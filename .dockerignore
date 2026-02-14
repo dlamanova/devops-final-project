@@ -1,0 +1,18 @@
+# Git
+.git
+.gitignore
+
+# Build results
+**/bin/
+**/obj/
+
+# IDE
+.vscode/
+.vs/
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Documentation
+README.md
