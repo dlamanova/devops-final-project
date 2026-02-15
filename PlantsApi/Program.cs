@@ -150,13 +150,10 @@ app.MapControllers();
 
 app.MapGet("/api/version", () =>
 {
-    var version = typeof(Program).Assembly
-        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-        .InformationalVersion ?? "1.0.0";
-    
     var gitCommit = Environment.GetEnvironmentVariable("GIT_COMMIT") ?? "unknown";
     var buildDate = Environment.GetEnvironmentVariable("BUILD_DATE") ?? DateTime.UtcNow.ToString("o");
     var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+    var version = Environment.GetEnvironmentVariable("VERSION") ?? "1.0.0";
 
     return Results.Ok(new
     {
