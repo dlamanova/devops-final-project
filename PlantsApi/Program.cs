@@ -1,3 +1,5 @@
+using System.Reflection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -32,5 +34,28 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGet("/api/version", () =>
+{
+    var version = typeof(Program).Assembly
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+        .InformationalVersion ?? "1.0.0";
+    
+    var gitCommit = Environment.GetEnvironmentVariable("GIT_COMMIT") ?? "unknown";
+    var buildDate = Environment.GetEnvironmentVariable("BUILD_DATE") ?? DateTime.UtcNow.ToString("o");
+    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
+    return Results.Ok(new
+    {
+        version,
+        gitCommit,
+        buildDate,
+        environment,
+        applicationName = "Plants API"
+    });
+})
+.WithName("GetVersion")
+.WithTags("Info")
+.Produces<object>(StatusCodes.Status200OK);
 
 app.Run();
