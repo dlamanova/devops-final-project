@@ -21,13 +21,62 @@ jobs:
           dotnet-version: "9.0.x"
 
       - name: Restore dependencies
-        run: dotnet restore PlantsApi/PlantsApi.csproj
+        run: |
+          dotnet restore PlantsApi/PlantsApi.csproj
+          dotnet restore PlantsApi.Tests/PlantsApi.Tests.csproj
 
       - name: Build project
         run: dotnet build PlantsApi/PlantsApi.csproj --configuration Release --no-restore
 
-      - name: Display build info
-        run: echo "Build completed successfully!"
+      - name: Build tests
+        run: dotnet build PlantsApi.Tests/PlantsApi.Tests.csproj --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: |
+          dotnet test PlantsApi.Tests/PlantsApi.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --logger "trx;LogFileName=test-results.trx" \
+            --logger "console;verbosity=detailed" \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/test-results.trx
+
+      - name: Upload code coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage
+          path: TestResults/**/coverage.cobertura.xml
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results
+          path: TestResults/test-results.trx
+          reporter: dotnet-trx
+          fail-on-error: true
+
+      - name: Display test summary
+        if: always()
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f "TestResults/test-results.trx" ]; then
+            echo "> [!TIP]" >> $GITHUB_STEP_SUMMARY
+            echo "> Tests completed successfully! Check artifacts for detailed report." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "> [!CAUTION]" >> $GITHUB_STEP_SUMMARY
+            echo "> Test results not found." >> $GITHUB_STEP_SUMMARY
+          fi
 
   docker-build:
     name: Build Docker Image
@@ -42,7 +91,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        run: docker build -t plants-api:latest .
+        run: docker build --platform linux/amd64 -t plants-api:latest .
 
       - name: Display Docker info
         run: |
